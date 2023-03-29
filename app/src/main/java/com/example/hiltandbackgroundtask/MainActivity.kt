@@ -16,9 +16,12 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.hiltandbackgroundtask.alarm.AlarmItem
+import com.example.hiltandbackgroundtask.alarm.AndroidAlarmScheduler
 import com.example.hiltandbackgroundtask.broadcast.AirplaneBroadcastReceiver
 import com.example.hiltandbackgroundtask.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -30,9 +33,12 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var receiver: AirplaneBroadcastReceiver
+
     @Inject
     @Named("NotificationManager")
     lateinit var notificationManager: NotificationManagerCompat
+
+    lateinit var scheduler: AndroidAlarmScheduler
 
     lateinit var notificationBuilder: Notification
     private val binding by lazy {
@@ -41,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        scheduler = AndroidAlarmScheduler(this)
         registerAirplaneReceiver()
         createNotification()
         setBindingEvent()
@@ -90,6 +97,7 @@ class MainActivity : AppCompatActivity() {
     private fun setBindingEvent() {
         binding.buttonNotification.setOnClickListener {
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder)
+            scheduler.schedule(AlarmItem("test", LocalDateTime.now()))
         }
     }
 }
